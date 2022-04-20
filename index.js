@@ -1,7 +1,171 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
+const generateHTML = require('./src/generatehtml.js');
+const Manager = require('./lib/Manager.js');
+const Engineer = require('./lib/Engineer.js');
+const Intern = require('./lib/Intern.js');
 
-const generateHTML = ({ teamManagerName, teamManagerID, teamManagerEmail, teamManagerOfficeNumber, engineerName, engineerID, engineerEmail, engineerGit, internName, internID, internEmail, internGit, }) =>
+const Employees = [];
+
+let isTeamComplete = false;
+
+const validateInput = (userInput) => {
+  if (userInput === "") {
+    return "Please enter your answer before proceeding.";
+  } else {
+    return true;
+  }
+};
+
+const init = async() => {
+  await createManager();
+
+
+  while (!isTeamComplete) {
+
+    const employeeTypeQuestion = [
+      {
+        type: 'list',
+        message: 'Please select the employee type you wish to add.',
+        name: 'employeeType',
+        choices: ['Engineer', 'Intern', 'None']
+      }
+    ];
+
+    const { employeeType } = await inquirer.prompt(employeeTypeQuestion);
+
+    if (employeeType === 'none') {
+      isTeamComplete = true;
+    } else {
+      if (employeeType === 'Engineer') {
+        await createEngineer();
+      }
+      if (employeeType === 'Intern') {
+        await createIntern();
+      }
+    }
+}
+
+const HTML = generateHTML(employees);
+fs.writeFileSync('index.html', HTML, (err) => {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log('Successfully created HTML File.');
+  }
+ });
+};
+
+const createManager = async() => {
+  const managerQuestions = [
+    {
+      type: 'input',
+      name: 'name',
+      message: 'What is the Managers name?',
+      validate: validateInput,
+    },
+    {
+      type: 'input',
+      name: 'id',
+      message: 'Enter employee ID:',
+      validate: validateInput,
+    },
+    {
+      type: 'input',
+      name: 'email',
+      message: 'What is the Managers email?',
+      validate: validateInput,
+    },
+    {
+      type: 'input',
+      name: 'officeNumber',
+      message: 'What is the Managers office number?',
+      validate: validateInput,
+    },
+  ];
+
+  const managerAnswers = await inquirer.prompt(managerQuestions);
+
+  const Manager = new Manager(managerAnswers);
+
+  Employees.push(Manager);
+};
+
+const createEngineer = async() => {
+
+  const engineerQuestions = [
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Please enter the Engineers name',
+      validate: validateInput,
+    },
+    {
+      type: 'input',
+      name: 'id',
+      message: 'Please enter the Engineers ID',
+      validate: validateInput,
+    },
+    {
+      type: 'input',
+      name: 'email',
+      message: 'Please enter the Engineers email',
+      validate: validateInput,
+    },
+    {
+      type: 'input',
+      name: 'github',
+      message: 'Please enter the Engineers Github',
+      validate: validateInput,
+    },
+  ];
+
+  const engineerAnswers = await inquirer.prompt(engineerQuestions);
+
+  const Engineer = new Engineer(engineerAnswers);
+
+  Employees.push(Engineer);
+};
+
+const createIntern = async() => {
+
+  const internQuestions = [
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Please enter the Interns name',
+      validate: validateInput,
+    },
+    {
+      type: 'input',
+      name: 'id',
+      message: 'Please enter the Interns ID',
+      validate: validateInput,
+    },
+    {
+      type: 'input',
+      name: 'email',
+      message: 'Please enter the Interns email',
+      validate: validateInput,
+    },
+    {
+      type: 'input',
+      name: 'github',
+      message: 'Please enter the Interns Github',
+      validate: validateInput,
+    },
+  ];
+
+  const internAnswers = await inquirer.prompt(internQuestions);
+
+  const Intern = new Intern(internAnswers);
+
+  Employees.push(Intern);
+};
+
+init();
+
+const generateHTML = ({ }) =>
   `<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -22,20 +186,20 @@ const generateHTML = ({ teamManagerName, teamManagerID, teamManagerEmail, teamMa
       <div class="row">
         <div class="column">
           <div class="card">
-            <h3>${teamManagerName}</h3>
+            <h3></h3>
             <h4>Manager</h4>
-            <p>ID: ${teamManagerID}<br>
-            Email: ${teamManagerEmail}<br>
-            Office Number: ${teamManagerOfficeNumber}</p>
+            <p>ID: <br>
+            Email: <br>
+            Office Number: </p>
           </div>
         </div>
         <div class="column">
           <div class="card">
-            <h3>${engineerName}</h3>
+            <h3></h3>
             <h4>Employee</h4>
-            <p>ID: ${engineerID}<br>
-            Email: ${engineerEmail}<br>
-            Github: ${engineerGit}</p>
+            <p>ID: <br>
+            Email: <br>
+            Github: </p>
           </div>
         </div>
         <div class="column">
@@ -69,269 +233,3 @@ const generateHTML = ({ teamManagerName, teamManagerID, teamManagerEmail, teamMa
   
   </body>
   </html>`;
-
-inquirer
-  .prompt([
-    {
-      type: 'input',
-      name: 'teamManagerName',
-      message: 'What is your Team Managers Name?',
-    },
-    {
-      type: 'input',
-      name: 'teamManagerID',
-      message: 'What is your Team Managers Employee ID?',
-    },
-    {
-      type: 'input',
-      name: 'teamManagerEmail',
-      message: 'What is the Team Managers email?',
-    },
-    {
-      type: 'input',
-      name: 'teamManagerOfficeNumber',
-      message: 'What is your Team Managers office number?',
-    },
-    {
-      type: 'confirm',
-      name: 'addEngineer',
-      message: 'Would you like to add an Engineer to the team?',
-
-    },
-    {
-      type: 'confirm',
-      name: 'addIntern',
-      message: 'Would you like to add an Intern to the team?',
-    },
-    {
-      type: 'input',
-      name: 'engineerName',
-      message: 'What is the name of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerID',
-      message: 'What is the Employee ID of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerEmail',
-      message: 'What is the Email Address of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerGit',
-      message: 'What is the Git Hub username of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'internName',
-      message: 'What is the name of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internID',
-      message: 'What is the Employee ID of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internEmail',
-      message: 'What is the Email Address of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internGit',
-      message: 'What is the Git Hub username of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'confirm',
-      name: 'addEngineer',
-      message: 'Would you like to add an Engineer to the team?',
-    },
-    {
-      type: 'confirm',
-      name: 'addIntern',
-      message: 'Would you like to add an Intern to the team?',
-    },
-    {
-      type: 'input',
-      name: 'engineerNameTwo',
-      message: 'What is the name of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerIDTwo',
-      message: 'What is the Employee ID of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerEmailTwo',
-      message: 'What is the Email Address of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerGitTwo',
-      message: 'What is the Git Hub username of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'internNameTwo',
-      message: 'What is the name of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internIDTwo',
-      message: 'What is the Employee ID of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internEmailTwo',
-      message: 'What is the Email Address of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internGitTwo',
-      message: 'What is the Git Hub username of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'confirm',
-      name: 'addEngineer',
-      message: 'Would you like to add an Engineer to the team?',
-
-    },
-    {
-      type: 'confirm',
-      name: 'addIntern',
-      message: 'Would you like to add an Intern to the team?',
-    },
-    {
-      type: 'input',
-      name: 'engineerNameThree',
-      message: 'What is the name of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerIDThree',
-      message: 'What is the Employee ID of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerEmailThree',
-      message: 'What is the Email Address of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerGitThree',
-      message: 'What is the Git Hub username of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'internNameThree',
-      message: 'What is the name of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internIDThree',
-      message: 'What is the Employee ID of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internEmailThree',
-      message: 'What is the Email Address of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internGitThree',
-      message: 'What is the Git Hub username of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'confirm',
-      name: 'addEngineer',
-      message: 'Would you like to add an Engineer to the team?',
-
-    },
-    {
-      type: 'confirm',
-      name: 'addIntern',
-      message: 'Would you like to add an Intern to the team?',
-    },
-    {
-      type: 'input',
-      name: 'engineerNameFour',
-      message: 'What is the name of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerIDFour',
-      message: 'What is the Employee ID of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerEmailFour',
-      message: 'What is the Email Address of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'engineerGitFour',
-      message: 'What is the Git Hub username of the engineer you would like to add?',
-      when: (answers) => answers.addEngineer === true,
-    },
-    {
-      type: 'input',
-      name: 'internNameFour',
-      message: 'What is the name of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internIDFour',
-      message: 'What is the Employee ID of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internEmailFour',
-      message: 'What is the Email Address of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-    {
-      type: 'input',
-      name: 'internGitFour',
-      message: 'What is the Git Hub username of the intern you would like to add?',
-      when: (answers) => answers.addIntern === true,
-    },
-  ])
-  .then((answers) => {
-    const htmlPageContent = generateHTML(answers);
-
-    fs.writeFile('index.html', htmlPageContent, (err) =>
-      err ? console.log(err) : console.log('Successfully created index.html!')
-    );
-  });
