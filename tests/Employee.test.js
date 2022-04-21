@@ -13,8 +13,6 @@ describe('constructor tests', () => {
         expect(employee).toBeInstanceOf(Employee);
     });
 });
-});
-
 describe('method tests', () => {
     test('should return ID when the getID method is called', () => {
         const employee = new Employee(mockEmployee);
@@ -30,4 +28,5 @@ describe('method tests', () => {
         const employee = new Employee(mockEmployee);
         expect(employee.getEmail()).toEqual('email@email.com');
     });
+});
 });

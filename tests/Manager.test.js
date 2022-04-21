@@ -1,5 +1,4 @@
 const Manager = require('../lib/Manager');
-const Intern = require('../lib/Manager');
 
 describe('Manager', () => {
     const mockManager = {
@@ -14,7 +13,7 @@ describe('Manager', () => {
       expect(manager).toBeInstanceOf(Manager);
     });
     test('should construct a new instance of the manager class with name, id, email, officeNumber, and role', () => {
-      const manager = new Manager(mockIntern);
+      const manager = new Manager(mockManager);
       expect(manager).toEqual({
         name: 'Mike',
         id: 321,
@@ -39,7 +38,7 @@ describe('Manager', () => {
     });
     test('should return manager officeNumber when the getOfficeNumber method is called', () => {
       const manager = new Manager(mockManager);
-      expect(manager.getOfficeNumber()).toEqual('123');
+      expect(manager.getOfficeNumber()).toEqual(123);
     });
     test('should return manager role when the getRole method is called', () => {
       const manager = new Manager(mockManager);
