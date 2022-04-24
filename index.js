@@ -1,13 +1,10 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
-const generateHTML = require('./src/generatehtml.js');
 const Manager = require('./lib/Manager.js');
 const Engineer = require('./lib/Engineer.js');
 const Intern = require('./lib/Intern.js');
 
-const Employees = [];
-
-let isTeamComplete = false;
+const employees = [];
 
 const validateInput = (userInput) => {
   if (userInput === "") {
@@ -20,7 +17,7 @@ const validateInput = (userInput) => {
 const init = async() => {
   await createManager();
 
-
+  let isTeamComplete = false;
   while (!isTeamComplete) {
 
     const employeeTypeQuestion = [
@@ -34,7 +31,7 @@ const init = async() => {
 
     const { employeeType } = await inquirer.prompt(employeeTypeQuestion);
 
-    if (employeeType === 'none') {
+    if (employeeType === 'None') {
       isTeamComplete = true;
     } else {
       if (employeeType === 'Engineer') {
@@ -44,16 +41,34 @@ const init = async() => {
         await createIntern();
       }
     }
-}
+  };
 
-const HTML = generateHTML(employees);
-fs.writeFileSync('index.html', HTML, (err) => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log('Successfully created HTML File.');
-  }
- });
+  const generateHTML = (employees) => {
+    const managers = employees.filter(manager => {
+      return manager.role === 'Manager';
+    });
+    const engineers = employees.filter(engineer => {
+      return engineer.role === 'Engineer';
+    }).map(engineer => {
+      return [engineer.name, engineer.email, engineer.id, engineer.github];
+    });
+    console.log(engineers);
+    const interns = employees.filter(intern => {
+      return intern.role === 'Intern';
+    }).map(intern => {
+      return [intern.name, intern.email, intern.id, intern.github]; 
+    });
+    //console.log(interns);
+  };
+
+  const HTML = generateHTML(employees);
+  fs.writeFileSync('index.html', HTML, (err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('Successfully created HTML File.');
+    }
+  });
 };
 
 const createManager = async() => {
@@ -86,9 +101,9 @@ const createManager = async() => {
 
   const managerAnswers = await inquirer.prompt(managerQuestions);
 
-  const Manager = new Manager(managerAnswers);
+  const newManager = new Manager(managerAnswers);
 
-  Employees.push(Manager);
+  employees.push(newManager);
 };
 
 const createEngineer = async() => {
@@ -122,9 +137,9 @@ const createEngineer = async() => {
 
   const engineerAnswers = await inquirer.prompt(engineerQuestions);
 
-  const Engineer = new Engineer(engineerAnswers);
+  const newEngineer = new Engineer(engineerAnswers);
 
-  Employees.push(Engineer);
+  employees.push(newEngineer);
 };
 
 const createIntern = async() => {
@@ -158,78 +173,9 @@ const createIntern = async() => {
 
   const internAnswers = await inquirer.prompt(internQuestions);
 
-  const Intern = new Intern(internAnswers);
+  const newIntern = new Intern(internAnswers);
 
-  Employees.push(Intern);
+  employees.push(newIntern);
 };
 
 init();
-
-const generateHTML = ({ }) =>
-  `<!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="./style.css" />
-    <title>Document</title>
-  </head>
-  <body>
-    <div class="container">
-      <div class="jumbotron">
-        <h1>My Team</h1>
-        <p>This is the current team that I am working with!</p>
-      </div>
-  
-      <div class="row">
-        <div class="column">
-          <div class="card">
-            <h3></h3>
-            <h4>Manager</h4>
-            <p>ID: <br>
-            Email: <br>
-            Office Number: </p>
-          </div>
-        </div>
-        <div class="column">
-          <div class="card">
-            <h3></h3>
-            <h4>Employee</h4>
-            <p>ID: <br>
-            Email: <br>
-            Github: </p>
-          </div>
-        </div>
-        <div class="column">
-          <div class="card">
-            <h3>Name</h3>
-            <h4>Employee</h4>
-            <p>ID: <br>
-            Email: <br>
-            Office Number: </p>
-          </div>
-        </div>
-        <div class="column">
-          <div class="card">
-            <h3>Name</h3>
-            <h4>Employee</h4>
-            <p>ID: <br>
-            Email: <br>
-            Office Number: </p>
-          </div>
-        </div>
-        <div class="column">
-          <div class="card">
-            <h3>Name</h3>
-            <h4>Employee</h4>
-            <p>ID: <br>
-            Email: <br>
-            Office Number: </p>
-          </div>
-        </div>
-      </div>
-  
-  </body>
-  </html>`;
