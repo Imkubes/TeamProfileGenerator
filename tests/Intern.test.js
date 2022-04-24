@@ -7,6 +7,7 @@ describe('Intern', () => {
       id: 155,
       email: 'email@email.com',
       github: 'github',
+      role: 'Intern',
   };
 describe('constructor tests', () => {
   test('should construct a new instance of the intern class', () => {
